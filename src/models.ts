@@ -39,3 +39,12 @@ export type CTCAE_CATEGORY = {
   id: number;
   name: string;
 };
+
+type TERM_DOC_DEF = {
+  id:string, 
+  desc:string
+}
+export const TERMINOLOGY_IDENTIFIERS: Record<string,TERM_DOC_DEF> = {
+  MEDRA: { id: "http://terminology.hl7.org/CodeSystem/mdr", desc: "https://terminology.hl7.org/CodeSystem-mdr.html" },
+  CTCAE_GRADE: {id: "CTCAETERM", desc: "https://discourse.openehr.org/t/ctcae-and-external-resources/3772/7"}
+}

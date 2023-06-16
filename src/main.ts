@@ -35,6 +35,7 @@ async function doTheWork() {
   
   await emitIfSet(excelAsJsonString);
   const db = createDatabaseModel(excelAsJsonString);
+
   await Deno.writeTextFile(CATEGORIES_JSON_OUTFILE, JSON.stringify(db, null, 1));
 
   console.log("|-- All finished");
@@ -62,10 +63,14 @@ async function doTheWork() {
       models: categoriesAndModels.models,
     };
     let n = 1000;
+    if(!categoriesAndModels.categories){
+      throw new Error("No categories defined - whats up?");
+    }
     Object.keys(categoriesAndModels.categories).forEach((k) => {
-      n += 1;
+      n  = categoriesAndModels.categories[k];
       db.categories.push({ id: n, name: k });
     });
+    console.log(db.categories);
     return db;
   }
 

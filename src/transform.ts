@@ -3,6 +3,7 @@ import {
   TERMS_TERM_TEXT_OUTFILE,
 } from "./main.ts";
 import { CPCA_ROW, CTCAE_MODEL } from "./models.ts";
+import { GroupDef, SocGroupToRecord, soc_groups } from "./soc_groups.ts";
 
 const TERM_CTCAE = "CTCAE";
 const TERM_CTCAE_GROUP = "CTCAE-GROUP";
@@ -29,20 +30,29 @@ export async function loadMapAndWriteTerms(json: string): Promise<boolean> {
 }
 
 export function fillModelsAndCategoriesFromJsonData(excelJson: string) {
-  const categories: Record<string, number> = {};
+
   const models: CTCAE_MODEL[] = [];
 
   const importedTerms: CPCA_ROW[] = JSON.parse(excelJson);
   importedTerms.forEach((excelRow) => {
     const model = transformFromExcelModelToSimplifiedModel(excelRow);
-    if (categories[model.category]) {
-      categories[model.category] = categories[model.category] + 1;
-    } else {
-      categories[model.category] = 1;
+    const medraCodeSoc = findMedraCodeForSocTerm(model.category);
+    if (!medraCodeSoc) {
+      throw new Error("No SOC found for model: " + JSON.stringify(model));
     }
+
     models.push(model);
   });
-  return { categories: categories, models: models };
+  return { categories: SocGroupToRecord(), models: models };
+}
+
+function findMedraCodeForSocTerm(s: string): GroupDef | undefined {
+  const items = soc_groups.filter(x => x.name === s);
+  if (items && items.length == 1) {
+    return items[0];
+  } else {
+    return undefined;
+  }
 }
 
 /**
